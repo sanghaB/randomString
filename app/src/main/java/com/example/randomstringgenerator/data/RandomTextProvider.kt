@@ -43,6 +43,22 @@ class RandomTextProvider : ContentProvider() {
     }
 
     override fun getType(uri: Uri): String? = null
-    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int = 0
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
+        if (uriMatcher.match(uri) != RANDOM_TEXT || selection != "text = ?" || selectionArgs.isNullOrEmpty()) return 0
+
+        val targetText = selectionArgs[0]
+        val iterator = dataList.iterator()
+        var count = 0
+
+        while (iterator.hasNext()) {
+            val item = iterator.next()
+            if (item["text"] == targetText) {
+                iterator.remove()
+                count++
+            }
+        }
+        return count
+    }
+
     override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?): Int = 0
 }

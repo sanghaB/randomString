@@ -39,21 +39,46 @@ fun MainScreen() {
 
         LazyColumn {
             items(randomTexts) { randomText: RandomText ->
-                RandomTextItem(randomText)
+                RandomTextItem(
+                    randomText = randomText,
+                    onDeleteClick = { textToDelete ->
+                        viewModel.deleteRandomText(textToDelete)
+                    }
+                )
             }
         }
+
     }
 }
 
 @Composable
-fun RandomTextItem(randomText: RandomText) {
-    Column(modifier = Modifier.padding(8.dp)) {
+fun RandomTextItem(
+    randomText: RandomText,
+    onDeleteClick: (String) -> Unit
+) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(8.dp)) {
+
         Text("Timestamp: ${randomText.timestamp}")
         Text("Length: ${randomText.length}")
         Text("Text: ${randomText.text}")
+
         Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = { onDeleteClick(randomText.text) },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+        ) {
+            Text("Delete", color = MaterialTheme.colorScheme.onError)
+        }
+
+        Divider(thickness = 1.dp, modifier = Modifier.padding(top = 8.dp))
     }
 }
+
+
+
 
 @Preview(showBackground = true)
 @Composable

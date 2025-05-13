@@ -61,4 +61,42 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val length = lengthRange.random()
         return (1..length).map { charset.random() }.joinToString("")
     }
+
+    fun deleteRandomText(textToDelete: String) {
+        try {
+            val rowsDeleted = getApplication<Application>().contentResolver.delete(
+                RandomTextProvider.CONTENT_URI,
+                "text = ?",
+                arrayOf(textToDelete)
+            )
+            Log.d("MainViewModel", "Deleted $rowsDeleted rows from provider")
+
+            // Refresh list
+            refreshRandomTexts()
+        } catch (e: Exception) {
+            Log.e("MainViewModel", "Error deleting random text: ${e.message}")
+        }
+    }
+
+    private fun refreshRandomTexts() {
+        val cursor = getApplication<Application>().contentResolver.query(
+            RandomTextProvider.CONTENT_URI, null, null, null, null
+        )
+
+        val randomTextList = mutableListOf<RandomText>()
+
+        cursor?.use {
+            while (it.moveToNext()) {
+                val randomText = RandomText(
+                    timestamp = it.getString(0),
+                    length = it.getInt(1),
+                    text = it.getString(2)
+                )
+                randomTextList.add(randomText)
+            }
+        }
+
+        _randomTexts.value = randomTextList
+    }
+
 }
